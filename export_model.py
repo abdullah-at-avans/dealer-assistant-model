@@ -7,7 +7,12 @@ def main():
     model = DealerAssistantModel(datasets)
 
     timed("Training", model.train)
-    timed("Saving model", model.save_model)
+    timed("Generate embeddings", model.generate_embeddings)
+
+    timed("Placing search index", model.place_index)
+
+    timed("Seraching", model.search, 'Kan het Koel- en remvloeistof vervangen worden?')
+
 
 if __name__ == "__main__":
     main()

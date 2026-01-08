@@ -11,11 +11,6 @@ def main():
 
     result: dict = timed("Seraching", model.search, 'Kan het Koel- en remvloeistof vervangen worden?')
 
-    log_info("INFO")
-    log_warning("WARNING")
-    log_pass("PASSED")
-    log_error("ERROR")
-
     if result[0]['description'] == 'Remschijven incl. blokken vervangen (Voor)':
         log_pass("PASSED")
     else:

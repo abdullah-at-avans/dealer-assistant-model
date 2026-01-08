@@ -6,3 +6,4 @@ torch==2.9.1
 datasets
 transformers[torch]
 pytest
+flask

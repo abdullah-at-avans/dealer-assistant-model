@@ -14,3 +14,6 @@ test:
 
 export-model:
 	@$(PYTHON) export_model.py
+
+server:
+	@$(PYTHON) server.py
