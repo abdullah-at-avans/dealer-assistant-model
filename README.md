@@ -1,5 +1,6 @@
 # Dealer assistant
 
+<image src="./assets/flowchart v2.png" alt="Flowchart v2"/>
 
 ## Usage
 1. Keep in mind to have around 5gb of free mem
@@ -13,6 +14,6 @@ source <your path ?? .venv>/bin/activate
 ```
 3. Before running main.py, install dependencies:
 ```shell
-pip3 install -r ./project/requirements.txt
+pip3 install --no-cache-dir -r ./requirements.txt 
 ```
 Please explore `main.py` to see which functions you might want to run.
