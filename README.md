@@ -17,3 +17,7 @@ source <your path ?? .venv>/bin/activate
 pip3 install --no-cache-dir -r ./requirements.txt 
 ```
 Please explore `main.py` to see which functions you might want to run.
+
+
+Furthermore, you can explore the `./assets` folder for additional resources and diagrams that illustrate the workflow and architecture of the dealer assistant system.
+Also Makefile is provided for easier execution of common tasks.

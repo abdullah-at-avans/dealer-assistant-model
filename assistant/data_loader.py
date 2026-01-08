@@ -11,6 +11,6 @@ def load_datasets():
 
     for i, fname in DATA_FILES.items():
         path = DATASET_PATH / fname
-        log_info(f'Loading "{i}" From "{path}"`')
+        log_info(f'Loading "{i}" From "{path}"')
         datasets[i] = pd.read_csv(path, low_memory=False)
     return datasets
