@@ -8,17 +8,18 @@ from .printer import log_info
 
 class DealerAssistantModel:
     PRETRAINED_MODEL = "distiluse-base-multilingual-cased-v1"
-    DEALER_ASSISTANT_MODEL = "test"
+    DEALER_ASSISTANT_MODEL = "models/dealer_assistant"
 
-    def __init__(self, datasets: dict, embeddings=None):
-        self.model = None
+    def __init__(self, datasets: dict=None, embeddings=None):
+        self._model = None
+        self._index = None
         self._datasets = datasets
         self._embeddings = embeddings
 
 
     # ---- Getters and setters ----
     @property
-    def datasets(self) -> dict:
+    def datasets(self) -> dict | None:
         return self._datasets
 
     @datasets.setter
@@ -69,13 +70,13 @@ class DealerAssistantModel:
             show_progress_bar=False
         )
 
+        self._model = model
         log_info("SBERT model done fine tuning.")
 
-    def save_model(self, name: str=None) -> None:
-        name = name if name else self.DEALER_ASSISTANT_MODEL
-        print(name)
-        self.model.save(name)
-        log_info(f"Model saved as '{name}'.")
+    def save_model(self, save_to_path: str=None) -> None:
+        save_to_path = save_to_path if save_to_path else self.DEALER_ASSISTANT_MODEL
+        self._model.save(save_to_path)
+        log_info(f"Model saved as '{save_to_path}'.")
 
     def generate_embeddings(self, model_path: str=None):
         # model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
@@ -96,22 +97,38 @@ class DealerAssistantModel:
 
         log_info("SBERT model embeddings generated.")
 
-    def search(self, text: str):
+    def place_index(self):
         # Normalize embeddings for cosine similarity
         faiss.normalize_L2(self.embeddings)
 
         dimension = self.embeddings.shape[1]
 
         # Cosine similarity via inner product
-        index = faiss.IndexFlatIP(dimension)
-        index.add(self.embeddings)
+        self._index = faiss.IndexFlatIP(dimension)
+        self._index.add(self.embeddings)
 
         log_info(
             f"FAISS index initialized with cosine similarity "
-            f"({index.ntotal} vectors, dimension {dimension})."
+            f"({self._index.ntotal} vectors, dimension {dimension})."
         )
 
-        
-        
-        
-        
+    def search(self, query: str, k: int=5) -> list[dict]:
+        model = SentenceTransformer(self.DEALER_ASSISTANT_MODEL)
+
+        query_embedding = model.encode([query])
+        distances, indices = self._index.search(query_embedding, k)
+
+        taken_df = self.datasets['works']
+
+        results = []
+        for i, idx in enumerate(indices[0]):
+            original_description = taken_df['description'].iloc[idx] # Assuming taken_df descriptions are in the same order as embeddings
+            cid = taken_df['cid'].iloc[idx]
+            results.append({
+                'description': original_description,
+                'cid': cid,
+                'distance': distances[0][i]
+            })
+        log_info(results.__str__())
+        return results
+

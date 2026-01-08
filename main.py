@@ -6,17 +6,22 @@ from assistant.timer import timed
 
 def main():
     datasets = timed("Loading datasets", load_datasets)
-    datasets = timed("Pre processing pipeline", preprocess, datasets)
+    # datasets = timed("Pre processing pipeline", preprocess, datasets)
 
     model = DealerAssistantModel(datasets)
 
-    timed("Training", model.train)
+    # model_path = 'mistralai/Mistral-Small-3.1-24B-Instruct-2503'
+
+    # timed("Training", model.train)
+    # timed("Saving model", model.save_model)
+    # timed("Generate embeddings", model.generate_embeddings)
+
+
     timed("Generate embeddings", model.generate_embeddings)
-    timed("Saving model", model.save_model, 'mistralai/Mistral-Small-3.1-24B-Instruct-2503')
+    timed("Placing serach index", model.place_index)
 
-    log_info(model.embeddings.shape)
+    timed("Seraching", model.search, 'Kan het Koel- en remvloeistof vervangen worden?')
 
-    log_info("Pipeline finished successfully.")
 
 
 if __name__ == "__main__":
