@@ -1,14 +1,17 @@
 import numpy as np
 from sentence_transformers import SentenceTransformer, InputExample, losses
-from torch import Tensor
 from torch.utils.data import DataLoader
 import faiss
 from .printer import log_info
+from pathlib import Path
 
 
 class DealerAssistantModel:
     PRETRAINED_MODEL = "distiluse-base-multilingual-cased-v1"
-    DEALER_ASSISTANT_MODEL = "models/dealer_assistant"
+
+    DEALER_ASSISTANT_MODEL = str(
+        Path(__file__).resolve().parent.parent / "models" / "colab"
+    )
 
     def __init__(self, datasets: dict=None, embeddings=None):
         self._model = None
@@ -16,31 +19,13 @@ class DealerAssistantModel:
         self._datasets = datasets
         self._embeddings = embeddings
 
-
-    # ---- Getters and setters ----
-    @property
-    def datasets(self) -> dict | None:
-        return self._datasets
-
-    @datasets.setter
-    def datasets(self, value: dict):
-        if not isinstance(value, dict):
-            raise TypeError("datasets must be a dict")
-        self._datasets = value
-
-    @property
-    def embeddings(self) -> list[Tensor] | np.ndarray | Tensor | dict[str, Tensor] | list[dict[str, Tensor]]:
-        return self._embeddings
-
-    @embeddings.setter
-    def embeddings(self, value) -> None:
-        self._embeddings = value
-
-
     # ---- Implementation ----
+    def set_model(self, model_path: str) -> None:
+        self._model = SentenceTransformer(model_path)
+        log_info(f"SBERT model loaded from '{model_path}'.")
 
     def train(self):
-        triplets_df = self.datasets['triplets']
+        triplets_df = self._datasets['triplets']
         train_examples = [
             InputExample(texts=[row.anchor, row.positive, row.negative])
             for _, row in triplets_df.iterrows()
@@ -78,18 +63,13 @@ class DealerAssistantModel:
         self._model.save(save_to_path)
         log_info(f"Model saved as '{save_to_path}'.")
 
-    def generate_embeddings(self, model_path: str=None):
-        # model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-        # model = SentenceTransformer('distiluse-base-multilingual-cased-v1')
-        model_path = model_path if model_path else self.DEALER_ASSISTANT_MODEL
-        model = SentenceTransformer(model_path)
-        taken_df = self.datasets['works']
+    def generate_embeddings(self):
+        taken_df = self._datasets['works']
 
-        taken_descriptions = taken_df['description'].dropna().tolist()
+        taken_descriptions = taken_df['description'].tolist()
 
         # Generate embeddings for the descriptions
-        # embeddings = model.encode(taken_descriptions, show_progress_bar=True)
-        self.embeddings = model.encode(
+        self._embeddings = self._model.encode(
             taken_descriptions,
             show_progress_bar=False,
             convert_to_numpy=True
@@ -99,13 +79,13 @@ class DealerAssistantModel:
 
     def place_index(self):
         # Normalize embeddings for cosine similarity
-        faiss.normalize_L2(self.embeddings)
+        faiss.normalize_L2(self._embeddings)
 
-        dimension = self.embeddings.shape[1]
+        dimension = self._embeddings.shape[1]
 
         # Cosine similarity via inner product
         self._index = faiss.IndexFlatIP(dimension)
-        self._index.add(self.embeddings)
+        self._index.add(self._embeddings)
 
         log_info(
             f"FAISS index initialized with cosine similarity "
@@ -113,12 +93,10 @@ class DealerAssistantModel:
         )
 
     def search(self, query: str, k: int=5) -> list[dict]:
-        model = SentenceTransformer(self.DEALER_ASSISTANT_MODEL)
-
-        query_embedding = model.encode([query])
+        query_embedding = self._model.encode([query])
         distances, indices = self._index.search(query_embedding, k)
 
-        taken_df = self.datasets['works']
+        taken_df = self._datasets['works']
 
         results = []
         for i, idx in enumerate(indices[0]):

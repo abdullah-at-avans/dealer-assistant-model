@@ -7,7 +7,8 @@ log_info("Starting server and loading model...")
 
 datasets = timed("Loading datasets", load_datasets)
 
-model = DealerAssistantModel()
+model = DealerAssistantModel(datasets)
+timed("Setting model", model.set_model, model.DEALER_ASSISTANT_MODEL)
 
 timed("Generate embeddings", model.generate_embeddings)
 timed("Placing search index", model.place_index)
