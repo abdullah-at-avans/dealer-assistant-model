@@ -24,11 +24,11 @@ def search():
     try:
         data = request.get_json(force=True)
 
-        if not data or "inputs" not in data:
-            log_warning("Invalid request: missing 'inputs'")
-            return jsonify({"error": "Missing 'inputs' field"}), 400
+        if not data or "input" not in data:
+            log_warning("Invalid request: missing 'input'")
+            return jsonify({"error": "Missing 'input' field"}), 400
 
-        query = data["inputs"]
+        query = data["input"]
         k = data["k"]
 
         log_info(f"Received search request: {query} (k={k})")
