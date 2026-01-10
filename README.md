@@ -3,7 +3,7 @@
 <image src="./assets/flowchart v2.png" alt="Flowchart v2"/>
 
 ## Usage
-1. Keep in mind to have around 5gb of free mem
+1. Make sure you have enough ram and vram available on your machine.
 2. Enter your desired python virtual env
 ```shell
 # Creating virtual environment

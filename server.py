@@ -6,6 +6,7 @@ app = Flask(__name__)
 log_info("Starting server and loading model...")
 
 datasets = timed("Loading datasets", load_datasets)
+datasets = timed("Pre processing", preprocess, datasets)
 
 model = DealerAssistantModel(datasets)
 timed("Setting model", model.set_model, model.DEALER_ASSISTANT_MODEL)
@@ -30,7 +31,7 @@ def search():
         query = data["inputs"]
         k = data["k"]
 
-        log_info("Received search request")
+        log_info(f"Received search request: {query} (k={k})")
 
         results: list[dict] = model.search(query, k)
         results = to_json_safe(results)

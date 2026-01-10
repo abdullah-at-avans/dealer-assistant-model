@@ -10,7 +10,7 @@ class DealerAssistantModel:
     PRETRAINED_MODEL = "distiluse-base-multilingual-cased-v1"
 
     DEALER_ASSISTANT_MODEL = str(
-        Path(__file__).resolve().parent.parent / "models" / "colab"
+        Path(__file__).resolve().parent.parent / "models" / "dealer_assistant"
     )
 
     def __init__(self, datasets: dict=None, embeddings=None):
@@ -38,7 +38,7 @@ class DealerAssistantModel:
         train_dataloader = DataLoader(
             train_examples,
             shuffle=True,
-            batch_size=16
+            batch_size=128
         )
 
         # Triplet Loss (cosine)
@@ -50,9 +50,9 @@ class DealerAssistantModel:
         # Train
         model.fit(
             train_objectives=[(train_dataloader, train_loss)],
-            epochs=2,
-            warmup_steps=10,
-            show_progress_bar=False
+            epochs=10,
+            warmup_steps=50,
+            show_progress_bar=True
         )
 
         self._model = model
