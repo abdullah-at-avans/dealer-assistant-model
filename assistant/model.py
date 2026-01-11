@@ -2,7 +2,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer, InputExample, losses
 from torch.utils.data import DataLoader
 import faiss
-from .printer import log_info
+from .printer import log_info, log_gpu
 from pathlib import Path
 
 
@@ -25,6 +25,7 @@ class DealerAssistantModel:
         log_info(f"SBERT model loaded from '{model_path}'.")
 
     def train(self):
+        log_gpu()
         triplets_df = self._datasets['triplets']
         train_examples = [
             InputExample(texts=[row.anchor, row.positive, row.negative])
