@@ -1,4 +1,4 @@
-faiss-cpu==1.7.4
+faiss-cpu==1.13.2
 numpy<=2
 pandas==2.3.3
 sentence_transformers==5.2.0
